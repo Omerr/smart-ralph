@@ -485,6 +485,40 @@ reviewEachTask=${reviewEachTask:-false}
       - If only one phase visible, center it
       - If phase has >6 tasks, show first 3 + "..." + last task
 
+   e. Edge Case Handling:
+
+      **First task of spec** (taskIndex = 0):
+      - Show "Starting spec" in summary line instead of previous phase
+      - No previous phase summary needed
+      - Example: `Starting spec | Phase: Phase 1 (POC)`
+
+      **Last task of spec** (taskIndex = totalTasks - 1):
+      - Show "Final task!" in summary line
+      - No NEXT marker on any task (this was the last one)
+      - No next phase column needed
+      - Example: `Completed: Y/Y | Final task!`
+
+      **Single-task spec** (totalTasks = 1):
+      - Use simplified message instead of diagram:
+        ```
+        ## Progress
+
+        Single task spec - completing now
+
+        Completed: 1/1
+        ```
+      - Skip the phase box rendering entirely
+
+      **Single-task phase**:
+      - Render phase box normally with just one task
+      - Example:
+        ```
+        Phase 1 (POC)
+        +----------------+
+        | 1.1 Task  [x]  |
+        +----------------+
+        ```
+
 3. Output pause message:
    ```
    TASK COMPLETE - PAUSED FOR REVIEW

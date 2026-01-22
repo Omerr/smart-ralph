@@ -35,7 +35,7 @@ Focus: Add diagram generation instructions to implement.md coordinator prompt.
   - _Requirements: FR-1, AC-1.4_
   - _Design: Modified Pause Output Template_
 
-- [ ] 1.3 Add edge case handling instructions
+- [x] 1.3 Add edge case handling instructions
   - **Do**:
     1. In diagram generation section, add handling for edge cases:
        - First task: show "Starting spec" context, no previous phase summary
