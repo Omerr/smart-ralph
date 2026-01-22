@@ -61,7 +61,7 @@ git rev-parse --verify origin/main 2>/dev/null && echo "main" || echo "master"
    |   |     "Then run /ralph-specum:research to begin."
    |   |   - STOP HERE - do not continue to Parse Arguments (user needs to switch directories)
    |   |
-   |   +-- Continue to Parse Arguments
+   |   +-- Continue to Config Questions
    |
    +-- ON NON-DEFAULT BRANCH (feature branch):
        |
@@ -74,16 +74,14 @@ git rev-parse --verify origin/main 2>/dev/null && echo "main" || echo "master"
        |
        +-- If user chooses 1 (continue):
        |   - Stay on current branch
-       |   - Suggest: "Run /ralph-specum:research to start the research phase."
-       |   - Continue to Parse Arguments
+       |   - Continue to Config Questions
        |
        +-- If user chooses 2 (new branch):
        |   - Generate branch name from spec name: feat/$specName
        |   - If spec name not yet known, use temp name: feat/spec-work-<timestamp>
        |   - Create and switch: git checkout -b <branch-name>
        |   - Inform user: "Created branch '<branch-name>' for this work"
-       |   - Suggest: "Run /ralph-specum:research to start the research phase."
-       |   - Continue to Parse Arguments
+       |   - Continue to Config Questions
        |
        +-- If user chooses 3 (worktree):
            - Generate branch name from spec name: feat/$specName
