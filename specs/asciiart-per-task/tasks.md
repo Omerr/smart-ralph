@@ -51,7 +51,7 @@ Focus: Add diagram generation instructions to implement.md coordinator prompt.
   - _Requirements: FR-8, AC-4.1, AC-4.2, AC-4.3, AC-4.4_
   - _Design: Edge Case Handling_
 
-- [ ] 1.4 Add next task files extraction instructions
+- [x] 1.4 Add next task files extraction instructions
   - **Do**:
     1. In diagram generation section, add instructions to extract Files from next task block
     2. Include in diagram output as "Files: <comma-separated list>"

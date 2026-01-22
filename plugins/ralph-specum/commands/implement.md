@@ -477,7 +477,15 @@ reviewEachTask=${reviewEachTask:-false}
       Files: <files from next task Files section, comma-separated>
       ```
 
-   d. Constraints:
+   d. Extract next task files:
+      - Find the next task block (task at taskIndex)
+      - Extract the **Files** line from that task block
+      - Parse comma-separated file list
+      - If >3 files: show first 3 + "... (+N more)" where N is remaining count
+      - If no Files line present, show "Files: (none specified)"
+      - Include as: `Files: file1.ts, file2.ts, file3.ts` in diagram output
+
+   e. Constraints:
       - Max 70 chars wide
       - Truncate task labels to 12 chars with "..."
       - Show [x] for completed tasks
@@ -485,7 +493,7 @@ reviewEachTask=${reviewEachTask:-false}
       - If only one phase visible, center it
       - If phase has >6 tasks, show first 3 + "..." + last task
 
-   e. Edge Case Handling:
+   f. Edge Case Handling:
 
       **First task of spec** (taskIndex = 0):
       - Show "Starting spec" in summary line instead of previous phase
