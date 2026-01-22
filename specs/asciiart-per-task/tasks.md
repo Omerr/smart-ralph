@@ -4,7 +4,7 @@
 
 Focus: Add diagram generation instructions to implement.md coordinator prompt.
 
-- [ ] 1.1 Add diagram generation instructions to reviewEachTask pause block
+- [x] 1.1 Add diagram generation instructions to reviewEachTask pause block
   - **Do**:
     1. Open `plugins/ralph-specum/commands/implement.md`
     2. Locate section 8 "State Update", reviewEachTask Pause Check (lines 425-460)

@@ -445,7 +445,47 @@ reviewEachTask=${reviewEachTask:-false}
      "awaitingApproval": true
    }
    ```
-2. Output pause message:
+
+2. **Generate Progress Diagram**:
+
+   Before outputting the pause message, generate an ASCII progress diagram:
+
+   a. Parse tasks.md to extract:
+      - Phase headers (lines matching `## Phase N:`)
+      - Tasks in each phase (lines matching `- [ ]` or `- [x]`)
+      - Current task position (from taskIndex)
+
+   b. Determine visible phases:
+      - Current phase (phase containing taskIndex)
+      - Next phase (if current phase has remaining tasks after current, stay in current)
+      - If current task is last in phase, show current + next phase
+
+   c. Render diagram following this template:
+      ```
+      ## Progress
+
+      Phase N (Name)         Phase N+1 (Name)
+      +----------------+     +----------------+
+      | 1.1 Label [x]  |     | 2.1 Label      | <-- NEXT
+      | 1.2 Label [x]  |     | 2.2 Label      |
+      | 1.3 Label      |     | ...            |
+      +----------------+     +----------------+
+
+      Completed: X/Y | Phase: <current phase name>
+
+      Next: <full next task description>
+      Files: <files from next task Files section, comma-separated>
+      ```
+
+   d. Constraints:
+      - Max 70 chars wide
+      - Truncate task labels to 12 chars with "..."
+      - Show [x] for completed tasks
+      - Show <-- NEXT on the next task line
+      - If only one phase visible, center it
+      - If phase has >6 tasks, show first 3 + "..." + last task
+
+3. Output pause message:
    ```
    TASK COMPLETE - PAUSED FOR REVIEW
 
@@ -454,8 +494,8 @@ reviewEachTask=${reviewEachTask:-false}
 
    Review the changes, then run /ralph-specum:implement to continue.
    ```
-3. Do NOT output ALL_TASKS_COMPLETE
-4. STOP execution immediately (do not continue to next task)
+4. Do NOT output ALL_TASKS_COMPLETE
+5. STOP execution immediately (do not continue to next task)
 
 **If reviewEachTask=false**: continue to next iteration (loop re-invokes coordinator)
 
