@@ -492,6 +492,10 @@ reviewEachTask=${reviewEachTask:-false}
    Task $previousTaskIndex completed successfully.
    Next task: $taskIndex of $totalTasks
 
+   ## Progress
+
+   [Insert generated ASCII progress diagram here]
+
    Review the changes, then run /ralph-specum:implement to continue.
    ```
 4. Do NOT output ALL_TASKS_COMPLETE

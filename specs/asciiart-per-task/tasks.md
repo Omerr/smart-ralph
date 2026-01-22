@@ -22,7 +22,7 @@ Focus: Add diagram generation instructions to implement.md coordinator prompt.
   - _Requirements: FR-1, FR-2, FR-3, FR-9, AC-1.1_
   - _Design: Coordinator Prompt Modifications_
 
-- [ ] 1.2 Update pause message template to include diagram placeholder
+- [x] 1.2 Update pause message template to include diagram placeholder
   - **Do**:
     1. In same file, locate the pause message output template (current lines 449-456)
     2. Modify template to include `## Progress` section between task info and resume instructions
