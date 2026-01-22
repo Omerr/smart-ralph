@@ -106,7 +106,7 @@ Skipped per interview - minimal testing depth, markdown-only changes.
   - **Verify**: `grep '"version": "2.5.9"' /home/omerr/repos/smart-ralph/plugins/ralph-specum/.claude-plugin/plugin.json`
   - **Commit**: `chore(ralph-specum): bump version to 2.5.9`
 
-- [ ] 4.2 Version bump in marketplace.json
+- [x] 4.2 Version bump in marketplace.json
   - **Do**:
     1. Open `.claude-plugin/marketplace.json`
     2. Update ralph-specum version from "2.5.8" to "2.5.9"
