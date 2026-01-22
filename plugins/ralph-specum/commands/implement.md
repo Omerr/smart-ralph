@@ -322,6 +322,25 @@ If TASK_COMPLETE appears alongside any contradiction phrase:
 
 **Layer 2: Uncommitted Spec Files Check**
 
+**Check autoCommit config first:**
+
+```bash
+# Read autoCommit from state (defaults to true if missing)
+autoCommit=$(grep -o '"autoCommit":[^,}]*' ./specs/$spec/.ralph-state.json 2>/dev/null | cut -d':' -f2 | tr -d ' ')
+# If not found in state, check config object
+if [ -z "$autoCommit" ]; then
+  autoCommit=$(grep -o '"autoCommit":[^,}]*' ./specs/$spec/.ralph-state.json 2>/dev/null | grep -o 'true\|false' | head -1)
+fi
+# Default to true if not set
+autoCommit=${autoCommit:-true}
+```
+
+**If autoCommit=false: Skip Layer 2 entirely. Proceed to Layer 3.**
+
+When autoCommit is disabled, spec-executor stages files but does not commit them. The uncommitted files check would always fail, so we skip it completely.
+
+**If autoCommit=true (or missing/default):**
+
 Before advancing, verify spec files are committed:
 
 ```bash
@@ -401,7 +420,130 @@ State structure:
 
 Check if all tasks complete:
 - If taskIndex >= totalTasks: proceed to section 10 (Completion Signal)
-- If taskIndex < totalTasks: continue to next iteration (loop re-invokes coordinator)
+- If taskIndex < totalTasks: check reviewEachTask config below
+
+**reviewEachTask Pause Check**:
+
+After state update, if more tasks remain (taskIndex < totalTasks), check reviewEachTask config:
+
+```bash
+# Read reviewEachTask from state config (defaults to false if missing)
+reviewEachTask=$(grep -o '"reviewEachTask":[^,}]*' ./specs/$spec/.ralph-state.json 2>/dev/null | grep -o 'true\|false' | head -1)
+# Default to false if not set
+reviewEachTask=${reviewEachTask:-false}
+```
+
+**If reviewEachTask=true AND taskIndex < totalTasks**:
+1. Set awaitingApproval flag in state:
+   ```json
+   {
+     "phase": "execution",
+     "taskIndex": <current>,
+     "totalTasks": <total>,
+     "taskIteration": 1,
+     "maxTaskIterations": <max>,
+     "awaitingApproval": true
+   }
+   ```
+
+2. **Generate Progress Diagram**:
+
+   Before outputting the pause message, generate an ASCII progress diagram:
+
+   a. Parse tasks.md to extract:
+      - Phase headers (lines matching `## Phase N:`)
+      - Tasks in each phase (lines matching `- [ ]` or `- [x]`)
+      - Current task position (from taskIndex)
+
+   b. Determine visible phases:
+      - Current phase (phase containing taskIndex)
+      - Next phase (if current phase has remaining tasks after current, stay in current)
+      - If current task is last in phase, show current + next phase
+
+   c. Render diagram following this template:
+      ```
+      ## Progress
+
+      Phase N (Name)         Phase N+1 (Name)
+      +----------------+     +----------------+
+      | 1.1 Label [x]  |     | 2.1 Label      | <-- NEXT
+      | 1.2 Label [x]  |     | 2.2 Label      |
+      | 1.3 Label      |     | ...            |
+      +----------------+     +----------------+
+
+      Completed: X/Y | Phase: <current phase name>
+
+      Next: <full next task description>
+      Files: <files from next task Files section, comma-separated>
+      ```
+
+   d. Extract next task files:
+      - Find the next task block (task at taskIndex)
+      - Extract the **Files** line from that task block
+      - Parse comma-separated file list
+      - If >3 files: show first 3 + "... (+N more)" where N is remaining count
+      - If no Files line present, show "Files: (none specified)"
+      - Include as: `Files: file1.ts, file2.ts, file3.ts` in diagram output
+
+   e. Constraints:
+      - Max 70 chars wide
+      - Truncate task labels to 12 chars with "..."
+      - Show [x] for completed tasks
+      - Show <-- NEXT on the next task line
+      - If only one phase visible, center it
+      - If phase has >6 tasks, show first 3 + "..." + last task
+
+   f. Edge Case Handling:
+
+      **First task of spec** (taskIndex = 0):
+      - Show "Starting spec" in summary line instead of previous phase
+      - No previous phase summary needed
+      - Example: `Starting spec | Phase: Phase 1 (POC)`
+
+      **Last task of spec** (taskIndex = totalTasks - 1):
+      - Show "Final task!" in summary line
+      - No NEXT marker on any task (this was the last one)
+      - No next phase column needed
+      - Example: `Completed: Y/Y | Final task!`
+
+      **Single-task spec** (totalTasks = 1):
+      - Use simplified message instead of diagram:
+        ```
+        ## Progress
+
+        Single task spec - completing now
+
+        Completed: 1/1
+        ```
+      - Skip the phase box rendering entirely
+
+      **Single-task phase**:
+      - Render phase box normally with just one task
+      - Example:
+        ```
+        Phase 1 (POC)
+        +----------------+
+        | 1.1 Task  [x]  |
+        +----------------+
+        ```
+
+3. Output pause message:
+   ```
+   TASK COMPLETE - PAUSED FOR REVIEW
+
+   Task $previousTaskIndex completed successfully.
+   Next task: $taskIndex of $totalTasks
+
+   ## Progress
+
+   [Insert generated ASCII progress diagram here]
+
+   Review the changes, then run /ralph-specum:implement to continue.
+   ```
+4. Do NOT output ALL_TASKS_COMPLETE
+5. STOP execution immediately (do not continue to next task)
+
+**If reviewEachTask=false**: continue to next iteration (loop re-invokes coordinator)
 
 ### 9. Progress Merge
 

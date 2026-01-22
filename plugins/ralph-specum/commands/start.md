@@ -61,7 +61,7 @@ git rev-parse --verify origin/main 2>/dev/null && echo "main" || echo "master"
    |   |     "Then run /ralph-specum:research to begin."
    |   |   - STOP HERE - do not continue to Parse Arguments (user needs to switch directories)
    |   |
-   |   +-- Continue to Parse Arguments
+   |   +-- Continue to Config Questions
    |
    +-- ON NON-DEFAULT BRANCH (feature branch):
        |
@@ -74,16 +74,14 @@ git rev-parse --verify origin/main 2>/dev/null && echo "main" || echo "master"
        |
        +-- If user chooses 1 (continue):
        |   - Stay on current branch
-       |   - Suggest: "Run /ralph-specum:research to start the research phase."
-       |   - Continue to Parse Arguments
+       |   - Continue to Config Questions
        |
        +-- If user chooses 2 (new branch):
        |   - Generate branch name from spec name: feat/$specName
        |   - If spec name not yet known, use temp name: feat/spec-work-<timestamp>
        |   - Create and switch: git checkout -b <branch-name>
        |   - Inform user: "Created branch '<branch-name>' for this work"
-       |   - Suggest: "Run /ralph-specum:research to start the research phase."
-       |   - Continue to Parse Arguments
+       |   - Continue to Config Questions
        |
        +-- If user chooses 3 (worktree):
            - Generate branch name from spec name: feat/$specName
@@ -95,6 +93,123 @@ git rev-parse --verify origin/main 2>/dev/null && echo "main" || echo "master"
              "Then run /ralph-specum:research to begin."
            - STOP HERE - do not continue to Parse Arguments (user needs to switch directories)
 ```
+
+## Config Questions (Pre-Interview)
+
+<mandatory>
+**Skip if `--quick` in $ARGUMENTS.** Quick mode uses global defaults if they exist, else built-in defaults.
+</mandatory>
+
+### Quick Mode Config Handling
+
+If `--quick` flag detected:
+
+```bash
+# Check if global config exists and read it
+GLOBAL_CONFIG=$(cat ~/.config/ralph-specum/config.json 2>/dev/null)
+```
+
+1. If GLOBAL_CONFIG is non-empty (file exists):
+   - Parse values: `autoCommit`, `reviewEachTask`, `autoPushAndPR` from JSON
+   - These become the config values for this spec
+2. If GLOBAL_CONFIG is empty (file does not exist):
+   - Use built-in defaults: autoCommit=true, reviewEachTask=false, autoPushAndPR=true
+3. Skip to next section (no questions asked)
+
+**Global Config Format (with version field for future migrations):**
+```json
+{
+  "version": 1,
+  "autoCommit": true,
+  "reviewEachTask": false,
+  "autoPushAndPR": true
+}
+```
+
+### Global Config Check (Returning Users)
+
+Check if user has saved global config:
+
+```bash
+cat ~/.config/ralph-specum/config.json 2>/dev/null
+```
+
+If global config exists, ask 3-way question:
+
+```
+AskUserQuestion:
+  questions:
+    - question: "Found saved config defaults. Use them?"
+      options:
+        - "Yes, use my saved defaults"
+        - "No, use built-in defaults this time"
+        - "Customize settings for this spec"
+```
+
+**If "Yes"**: Load values from global config, skip to next section
+**If "No"**: Use built-in defaults (autoCommit=true, reviewEachTask=false, autoPushAndPR=true), skip to next section
+**If "Customize"**: Continue to config questions below
+
+### Config Questions
+
+If no global config exists OR user chose "Customize", ask these questions:
+
+```
+AskUserQuestion:
+  questions:
+    - question: "Should Ralph commit automatically after each task?"
+      options:
+        - "Yes, commit automatically"
+        - "No, I'll commit manually"
+    - question: "Should Ralph pause for review after each task?"
+      options:
+        - "Yes, pause for my review"
+        - "No, continue automatically"
+    - question: "Should Ralph push and create PR when done?"
+      options:
+        - "Yes, push and create PR"
+        - "No, I'll handle that"
+```
+
+Map responses to config values:
+- "Yes, commit automatically" → autoCommit=true
+- "No, I'll commit manually" → autoCommit=false
+- "Yes, pause for my review" → reviewEachTask=true
+- "No, continue automatically" → reviewEachTask=false
+- "Yes, push and create PR" → autoPushAndPR=true
+- "No, I'll handle that" → autoPushAndPR=false
+
+### Save Defaults Prompt
+
+After config questions answered (not when using existing defaults), ask:
+
+```
+AskUserQuestion:
+  questions:
+    - question: "Save these settings as your defaults for future specs?"
+      options:
+        - "Yes, save as defaults"
+        - "No, just for this spec"
+```
+
+If "Yes": Save to global config using the following commands:
+
+```bash
+# Create config directory
+mkdir -p ~/.config/ralph-specum
+
+# Write global config with version field
+cat > ~/.config/ralph-specum/config.json << EOF
+{
+  "version": 1,
+  "autoCommit": $autoCommit,
+  "reviewEachTask": $reviewEachTask,
+  "autoPushAndPR": $autoPushAndPR
+}
+EOF
+```
+
+Where `$autoCommit`, `$reviewEachTask`, `$autoPushAndPR` are the boolean values from user responses (true/false).
 
 ### Branch Naming Convention
 
@@ -337,7 +452,12 @@ Example: "Build authentication with JWT tokens" -> "build-authentication-with"
      "maxTaskIterations": 5,
      "globalIteration": 1,
      "maxGlobalIterations": 100,
-     "commitSpec": $commitSpec
+     "commitSpec": $commitSpec,
+     "config": {
+       "autoCommit": $autoCommit,
+       "reviewEachTask": $reviewEachTask,
+       "autoPushAndPR": $autoPushAndPR
+     }
    }
    |
 5. Write .progress.md with original goal
@@ -517,10 +637,15 @@ The only exception is `--quick` mode, which skips approval between phases.
      "maxTaskIterations": 5,
      "globalIteration": 1,
      "maxGlobalIterations": 100,
-     "commitSpec": $commitSpec
+     "commitSpec": $commitSpec,
+     "config": {
+       "autoCommit": $autoCommit,
+       "reviewEachTask": $reviewEachTask,
+       "autoPushAndPR": $autoPushAndPR
+     }
    }
    ```
-6. Create `.progress.md` with goal
+6. Create `.progress.md` with goal and Configuration section
 7. **Goal Interview** (skip if --quick in $ARGUMENTS)
 8. Invoke research-analyst agent with goal interview context
 9. **STOP** - research-analyst sets awaitingApproval=true. Output status and wait for user to run `/ralph-specum:requirements`
@@ -597,6 +722,31 @@ Interview responses from goal clarification:
 [Additional follow-up responses if any]
 ```
 
+### Configuration Section in .progress.md
+
+When creating `.progress.md`, include the Configuration section after Goal (or Goal Context if interview completed):
+
+```markdown
+## Configuration
+
+- Auto-commit: [Yes/No] (autoCommit=$autoCommit)
+- Review each task: [Yes/No] (reviewEachTask=$reviewEachTask)
+- Auto push and PR: [Yes/No] (autoPushAndPR=$autoPushAndPR)
+```
+
+Map boolean values to display:
+- `true` → "Yes"
+- `false` → "No"
+
+Example:
+```markdown
+## Configuration
+
+- Auto-commit: No (user will commit manually)
+- Review each task: Yes (pause after each task)
+- Auto push and PR: No (user will handle)
+```
+
 ### Pass Context to Research
 
 Include goal interview context when invoking research-analyst:
@@ -649,10 +799,15 @@ Triggered when `--quick` flag detected. Skips all spec phases and auto-generates
      "taskIteration": 1,
      "maxTaskIterations": 5,
      "globalIteration": 1,
-     "maxGlobalIterations": 100
+     "maxGlobalIterations": 100,
+     "config": {
+       "autoCommit": $autoCommit,
+       "reviewEachTask": $reviewEachTask,
+       "autoPushAndPR": $autoPushAndPR
+     }
    }
    ```
-5. Write `.progress.md` with goal
+5. Write `.progress.md` with goal and Configuration section
 6. Update `.current-spec` with name
 7. Invoke plan-synthesizer agent to generate all artifacts
 8. After generation: update state `phase: "execution"`, read task count

@@ -267,15 +267,41 @@ The only exception is if the user explicitly requests pushing to the default bra
 
 <mandatory>
 ALWAYS commit spec files with every task commit. This is NON-NEGOTIABLE.
+
+**EXCEPTION: autoCommit Config**
+
+Before committing, check the `autoCommit` config value:
+
+```bash
+# Read autoCommit from state (defaults to true if missing)
+autoCommit=$(cat ./specs/<spec>/.ralph-state.json 2>/dev/null | grep -o '"autoCommit":[^,}]*' | cut -d: -f2 | tr -d ' ' || echo "true")
+# If config.autoCommit doesn't exist, default to true
+if [ -z "$autoCommit" ] || [ "$autoCommit" = "null" ]; then
+  autoCommit="true"
+fi
+```
+
+**If autoCommit=true (or missing)**: Commit as usual (default behavior).
+
+**If autoCommit=false**:
+1. Stage all files (task files + spec files) - staging still happens
+2. Skip the `git commit` command entirely
+3. Log to progress: "STAGED (autoCommit=false)" instead of commit hash
+4. TASK_COMPLETE still outputs - task is complete, just not committed
+
+Example progress entry when autoCommit=false:
+```markdown
+- [x] 2.1 Task name - STAGED (autoCommit=false)
+```
 </mandatory>
 
-- Each task = one commit
+- Each task = one commit (when autoCommit=true)
 - Commit AFTER verify passes
 - Use EXACT commit message from task
 - Never commit failing code
 - Include task reference in commit body if helpful
 
-**CRITICAL: Always stage and commit these spec files with EVERY task:**
+**CRITICAL: Always stage these spec files with EVERY task (regardless of autoCommit):**
 ```bash
 # Standard (sequential) execution:
 git add ./specs/<spec>/tasks.md ./specs/<spec>/.progress.md
@@ -286,7 +312,10 @@ git add ./specs/<spec>/tasks.md ./specs/<spec>/<progressFile>
 - `./specs/<spec>/tasks.md` - task checkmarks updated
 - Progress file - either .progress.md (default) or progressFile (parallel)
 
-Failure to commit spec files breaks progress tracking across sessions.
+**When autoCommit=true**: After staging, commit with task message.
+**When autoCommit=false**: After staging, skip commit. User will commit manually.
+
+Failure to stage spec files breaks progress tracking across sessions.
 
 ## File Locking for Parallel Execution
 
@@ -412,14 +441,18 @@ The state file is verified against tasks.md checkmarks. Shortcuts don't work.
 NEVER output TASK_COMPLETE unless the task is TRULY complete:
 - Verification command passed
 - All "Done when" criteria met
-- Changes committed successfully (including spec files)
+- Changes staged (and committed if autoCommit=true)
 - Task marked [x] in tasks.md
+
+**Note on autoCommit=false**: TASK_COMPLETE still outputs when autoCommit=false.
+The task is complete (verified, staged, marked [x]) even though commit is skipped.
+User will commit manually later.
 
 Do NOT lie to exit the loop. If blocked, describe the issue honestly.
 
 **The stop-hook enforces 4 verification layers:**
 1. Contradiction detection - rejects "requires manual... TASK_COMPLETE"
-2. Uncommitted files check - rejects if spec files not committed
+2. Uncommitted files check - rejects if spec files not committed (skipped when autoCommit=false)
 3. Checkmark verification - validates task is marked [x]
 4. Signal verification - requires TASK_COMPLETE
 
