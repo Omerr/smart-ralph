@@ -11,7 +11,7 @@ created: 2026-01-22
 
 Focus: Add config questions to start.md and wire them through to state. Skip schema validation.
 
-- [ ] 1.1 Add config schema to spec.schema.json
+- [x] 1.1 Add config schema to spec.schema.json
   - **Do**:
     1. Open `plugins/ralph-specum/schemas/spec.schema.json`
     2. Add `config` object to state definition properties (after `taskResults`)
@@ -24,7 +24,7 @@ Focus: Add config questions to start.md and wire them through to state. Skip sch
   - _Requirements: FR-3, AC-1.3, AC-2.3, AC-3.3_
   - _Design: Config Storage (per-spec)_
 
-- [ ] 1.2 Add config questions section to start.md
+- [x] 1.2 Add config questions section to start.md
   - **Do**:
     1. Open `plugins/ralph-specum/commands/start.md`
     2. After "Branch Management" section (line ~97), add new section "## Config Questions (Pre-Interview)"
@@ -40,7 +40,7 @@ Focus: Add config questions to start.md and wire them through to state. Skip sch
   - _Requirements: FR-1, FR-2, AC-1.1, AC-1.2, AC-2.1, AC-2.2, AC-3.1, AC-3.2_
   - _Design: Config Question Flow (in start.md)_
 
-- [ ] 1.3 Add global config read/write logic to start.md
+- [x] 1.3 Add global config read/write logic to start.md
   - **Do**:
     1. In start.md config section, add bash commands for:
        - Reading global config: `cat ~/.config/ralph-specum/config.json 2>/dev/null`
@@ -55,7 +55,7 @@ Focus: Add config questions to start.md and wire them through to state. Skip sch
   - _Requirements: FR-10, FR-11, FR-15, FR-16, AC-6.1, AC-6.2_
   - _Design: Global Config Manager_
 
-- [ ] 1.4 Add per-spec config storage and progress update to start.md
+- [x] 1.4 Add per-spec config storage and progress update to start.md
   - **Do**:
     1. Update start.md state initialization to include config object
     2. Add logic to write config values to .ralph-state.json
@@ -71,7 +71,7 @@ Focus: Add config questions to start.md and wire them through to state. Skip sch
 
 Wire config options to their respective integration points.
 
-- [ ] 2.1 Modify spec-executor for conditional commits (autoCommit)
+- [x] 2.1 Modify spec-executor for conditional commits (autoCommit)
   - **Do**:
     1. Open `plugins/ralph-specum/agents/spec-executor.md`
     2. In "Commit Discipline" section (around line 266), add conditional logic
@@ -86,7 +86,7 @@ Wire config options to their respective integration points.
   - _Requirements: FR-4, AC-1.4_
   - _Design: spec-executor.md Changes_
 
-- [ ] 2.2 Modify implement.md Layer 2 to skip when autoCommit=false
+- [x] 2.2 Modify implement.md Layer 2 to skip when autoCommit=false
   - **Do**:
     1. Open `plugins/ralph-specum/commands/implement.md`
     2. Find Layer 2 section "Uncommitted Spec Files Check" (around line 323)
@@ -100,7 +100,7 @@ Wire config options to their respective integration points.
   - _Requirements: FR-5, AC-1.5_
   - _Design: implement.md Coordinator Changes - Location 1_
 
-- [ ] 2.3 Modify implement.md for reviewEachTask pause behavior
+- [x] 2.3 Modify implement.md for reviewEachTask pause behavior
   - **Do**:
     1. In implement.md, find State Update section (section 8, around line 375)
     2. Add reviewEachTask config read: `jq -r '.config.reviewEachTask // false'`
@@ -114,7 +114,7 @@ Wire config options to their respective integration points.
   - _Requirements: FR-6, AC-2.4, AC-2.5_
   - _Design: implement.md Coordinator Changes - Location 2_
 
-- [ ] 2.4 Modify task-planner for conditional PR task (autoPushAndPR)
+- [x] 2.4 Modify task-planner for conditional PR task (autoPushAndPR)
   - **Do**:
     1. Open `plugins/ralph-specum/agents/task-planner.md`
     2. Find Phase 4 task 4.2 section (around line 378)
@@ -135,7 +135,7 @@ Skip - Interview indicated minimal/POC only (markdown-only changes to plugin def
 
 ## Phase 4: Quality Gates
 
-- [ ] 4.1 [VERIFY] Verify all config options documented in files
+- [x] 4.1 [VERIFY] Verify all config options documented in files
   - **Do**:
     1. Check start.md has config questions for all 3 options
     2. Check spec-executor.md handles autoCommit
@@ -146,7 +146,7 @@ Skip - Interview indicated minimal/POC only (markdown-only changes to plugin def
   - **Done when**: All config options appear in their expected files
   - **Commit**: None (verification only)
 
-- [ ] 4.2 [VERIFY] AC checklist verification
+- [x] 4.2 [VERIFY] AC checklist verification
   - **Do**:
     1. Read requirements.md for all AC-* criteria
     2. Verify AC-1.* (autoCommit): start.md questions, state storage, spec-executor conditional
@@ -166,7 +166,7 @@ Skip - Interview indicated minimal/POC only (markdown-only changes to plugin def
   - **Done when**: All AC requirements verified present in files
   - **Commit**: None (verification only)
 
-- [ ] 4.3 Version bump for plugin
+- [x] 4.3 Version bump for plugin
   - **Do**:
     1. Read current version from `plugins/ralph-specum/.claude-plugin/plugin.json`
     2. Increment patch version (e.g., 0.4.0 -> 0.4.1)
@@ -178,7 +178,7 @@ Skip - Interview indicated minimal/POC only (markdown-only changes to plugin def
   - **Commit**: `chore(config): bump version for config questions feature`
   - _Requirements: Version bump required per CLAUDE.md_
 
-- [ ] 4.4 Create PR and verify CI
+- [x] 4.4 Create PR and verify CI
   - **Do**:
     1. Verify current branch is feature branch: `git branch --show-current`
     2. Push branch: `git push -u origin $(git branch --show-current)`

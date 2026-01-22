@@ -375,6 +375,20 @@ By default, when on a feature branch (non-default), the final deliverable is a P
   - **Done when**: All commands pass with no errors
   - **Commit**: `fix(scope): address lint/type issues` (if fixes needed)
 
+### Task 4.2: Conditional Based on autoPushAndPR Config
+
+<mandatory>
+**Check .progress.md Configuration section for `autoPushAndPR` setting before generating task 4.2.**
+
+Read the spec's `.progress.md` file and look for:
+```markdown
+## Configuration
+- Auto push and PR: Yes/No
+```
+
+**If autoPushAndPR=true (default, or "Yes", or section missing):**
+Generate the standard PR creation task:
+
 - [ ] 4.2 Create PR and verify CI
   - **Do**:
     1. Verify current branch is a feature branch: `git branch --show-current`
@@ -392,6 +406,21 @@ By default, when on a feature branch (non-default), the final deliverable is a P
     2. Fix issues locally
     3. Push fixes: `git push`
     4. Re-verify: `gh pr checks --watch`
+
+**If autoPushAndPR=false (or "No"):**
+Generate the manual notification task instead:
+
+- [ ] 4.2 Notify user: ready for manual push and PR
+  - **Do**:
+    1. Verify current branch is a feature branch: `git branch --show-current`
+    2. If on default branch, STOP and alert user (should not happen - branch is set at startup)
+    3. Output summary of changes for user
+    4. Provide suggested PR title and body
+    5. Output instructions: "Run `git push -u origin <branch>` then create PR manually"
+  - **Verify**: `git branch --show-current` returns non-default branch name
+  - **Done when**: User notified with push/PR instructions
+  - **Commit**: None (notification only)
+</mandatory>
 
 ## Notes
 

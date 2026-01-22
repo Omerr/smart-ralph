@@ -119,6 +119,33 @@
             },
             "required": ["status"]
           }
+        },
+        "config": {
+          "type": "object",
+          "description": "Per-spec configuration options set during start",
+          "properties": {
+            "version": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "description": "Config schema version for migration support"
+            },
+            "autoCommit": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether spec-executor commits automatically or stages only"
+            },
+            "reviewEachTask": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to pause after each task for user review"
+            },
+            "autoPushAndPR": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether to automatically push and create PR at completion"
+            }
+          }
         }
       }
     },
