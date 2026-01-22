@@ -97,7 +97,7 @@ Skipped per interview - minimal testing depth, markdown-only changes.
 
 ## Phase 4: Quality Gates
 
-- [ ] 4.1 Version bump in plugin.json
+- [x] 4.1 Version bump in plugin.json
   - **Do**:
     1. Open `plugins/ralph-specum/.claude-plugin/plugin.json`
     2. Bump version from "2.5.8" to "2.5.9"
