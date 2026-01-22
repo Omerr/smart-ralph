@@ -63,7 +63,7 @@ Focus: Add diagram generation instructions to implement.md coordinator prompt.
   - _Requirements: FR-6, AC-3.2, AC-3.3_
   - _Design: Prompt Addition step 3_
 
-- [ ] 1.5 POC Checkpoint
+- [x] 1.5 POC Checkpoint
   - **Do**: Verify all diagram generation instructions are properly integrated
   - **Done when**: All grep patterns pass, instructions logically flow
   - **Verify**: `grep -c "Progress Diagram\|Phase N\|<-- NEXT\|First task\|Files:" /home/omerr/repos/smart-ralph/plugins/ralph-specum/commands/implement.md | grep -q "[5-9]"`
