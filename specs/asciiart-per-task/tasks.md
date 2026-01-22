@@ -115,7 +115,7 @@ Skipped per interview - minimal testing depth, markdown-only changes.
   - **Verify**: `grep -A2 '"name": "ralph-specum"' /home/omerr/repos/smart-ralph/.claude-plugin/marketplace.json | grep -q '"version": "2.5.9"'`
   - **Commit**: `chore(marketplace): bump ralph-specum to 2.5.9`
 
-- [ ] 4.3 [VERIFY] Final validation: all diagram instructions present
+- [x] 4.3 [VERIFY] Final validation: all diagram instructions present
   - **Do**: Run comprehensive grep to verify all key elements present
   - **Verify**: `grep -E "Progress Diagram|Phase N|<-- NEXT|First task|Last task|Single-task|truncate|Files:" /home/omerr/repos/smart-ralph/plugins/ralph-specum/commands/implement.md | wc -l | grep -q "[8-9][0-9]*\|[1-9][0-9]"`
   - **Done when**: At least 8 key patterns found in implement.md
