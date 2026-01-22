@@ -73,7 +73,7 @@ Focus: Add diagram generation instructions to implement.md coordinator prompt.
 
 After POC validated, clean up and ensure consistency.
 
-- [ ] 2.1 Ensure diagram format consistency with design spec
+- [x] 2.1 Ensure diagram format consistency with design spec
   - **Do**:
     1. Review diagram template against design.md specification
     2. Verify all markers match: `[x]`, `<-- NEXT`, `+`, `-`, `|`
